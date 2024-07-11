@@ -1,5 +1,6 @@
 package com.example.product.service;
 
+import com.example.product.exception.ResourceNotFoundException;
 import com.example.product.model.Product;
 import com.example.product.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,28 +38,23 @@ public class ProductService {
     public Optional<Product> updateProductPartially(Long id, Map<String, Object> updates) {
         Optional<Product> productOptional = productRepository.findById(id);
 
-        if (productOptional.isPresent()) {
-            Product product = productOptional.get();
-
-            updates.forEach((key, value) -> {
-                switch (key) {
-                    case "name":
-                        product.setName((String) value);
-                        break;
-                    case "description":
-                        product.setCategory((String) value);
-                        break;
-                    case "price":
-                        product.setPrice((Double) value);
-                        break;
-                    // Add more cases as needed
-                }
-            });
-
-            productRepository.save(product);
-            return Optional.of(product);
+        if (productOptional.isEmpty()) {
+            throw new ResourceNotFoundException("Product not found with id " + id);
         }
 
-        return Optional.empty();
+        Product product = productOptional.get();
+        updates.forEach((key, value) -> {
+            switch (key) {
+                case "name" -> product.setName((String) value);
+                case "category" -> product.setCategory((String) value);
+                case "price" -> product.setPrice((Double) value);
+
+
+            }
+        });
+
+        productRepository.save(product);
+        return Optional.of(product);
+
     }
 }

@@ -44,11 +44,7 @@ public class ProductController {
     @PatchMapping("/{id}")
     public ResponseEntity<Product> updateProductPartially(@PathVariable Long id, @RequestBody Map<String, Object> updates) {
         Optional<Product> updatedProduct = productService.updateProductPartially(id, updates);
-        if (updatedProduct.isPresent()) {
-            return ResponseEntity.ok(updatedProduct.get());
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return updatedProduct.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
 

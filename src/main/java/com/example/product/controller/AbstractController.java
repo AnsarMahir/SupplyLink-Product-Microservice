@@ -27,5 +27,5 @@ public abstract class AbstractController {
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    // Add other status handlers as needed
+
 }

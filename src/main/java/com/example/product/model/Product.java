@@ -1,10 +1,6 @@
 package com.example.product.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table
@@ -14,7 +10,8 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private String category;
+    @Enumerated(EnumType.STRING)
+    private ProductCategory category;
     private Double price;
 
     // Getters and Setters
@@ -34,11 +31,11 @@ public class Product {
         this.name = name;
     }
 
-    public String getCategory() {
+    public ProductCategory getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(ProductCategory category) {
         this.category = category;
     }
 
@@ -52,10 +49,11 @@ public class Product {
 
     public Product() {}
 
-    public Product(String name, String category, Double price) {
+    public Product(String name, ProductCategory category, Double price) {
         this.name = name;
         this.category = category;
         this.price = price;
     }
+
 }
 

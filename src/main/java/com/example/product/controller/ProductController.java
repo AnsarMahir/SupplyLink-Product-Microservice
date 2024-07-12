@@ -3,6 +3,7 @@ package com.example.product.controller;
 import com.example.product.model.Product;
 import com.example.product.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,8 +38,9 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteProduct(@PathVariable Long id) {
+    public ResponseEntity<String> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
+        return new ResponseEntity<>("Product deleted successfully", HttpStatus.OK);
     }
 
     @PatchMapping("/{id}")

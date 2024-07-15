@@ -33,8 +33,9 @@ public class ProductController {
     }
 
     @PostMapping
-    public Product createProduct(@RequestBody Product product) {
-        return productService.createProduct(product);
+    public ResponseEntity<String>  createProduct(@RequestBody Product product) {
+        productService.createProduct(product);
+        return new ResponseEntity<>("Product created successfully", HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

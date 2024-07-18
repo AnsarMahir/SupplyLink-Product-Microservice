@@ -1,6 +1,7 @@
 package com.example.product.controller;
 
 import com.example.product.exception.ErrorResponse;
+import com.example.product.exception.SuccessResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.context.request.WebRequest;
@@ -27,5 +28,13 @@ public abstract class AbstractController {
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    protected <T> ResponseEntity<SuccessResponse<T>> createSuccessResponse(T body, String message, HttpStatus status) {
+        SuccessResponse<T> successResponse = new SuccessResponse<>(status, message, body);
+        return new ResponseEntity<>(successResponse, status);
+    }
+
+    protected <T> ResponseEntity<SuccessResponse<T>> createSuccessResponse(T body, HttpStatus status) {
+        return createSuccessResponse(body, "Request was successful", status);
+    }
 
 }

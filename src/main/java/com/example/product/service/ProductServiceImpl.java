@@ -1,13 +1,16 @@
 package com.example.product.service;
 
+import com.example.product.dto.ProductDTO;
 import com.example.product.exception.ResourceNotFoundException;
+import com.example.product.mapper.ProductMapper;
 import com.example.product.model.Product;
 import com.example.product.model.ProductCategory;
 import com.example.product.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -21,25 +24,33 @@ public class ProductServiceImpl implements ProductService {
         this.productRepository = productRepository;
     }
 
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public Page<ProductDTO> getAllProducts(Pageable pageable) {
+        Page<Product> productsPage = productRepository.findAll(pageable);
+        return productsPage.map(ProductMapper::toDTO);
     }
 
-    public Product getProductById(Long id) {
-        return productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
+    public Optional<ProductDTO> getProductById(Long id) {
+        return productRepository.findById(id).map(ProductMapper::toDTO);
     }
 
-    public Product createProduct(Product product) {
-        return productRepository.save(product);
+    public ProductDTO createProduct(ProductDTO productDTO) {
+        Product product = ProductMapper.toEntity(productDTO);
+        Product savedProduct = productRepository.save(product);
+        return ProductMapper.toDTO(savedProduct);
     }
 
-    public void deleteProduct(Long id) {
-        if (!productRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Product not found with id: " + id);
+    public ProductDTO deleteProduct(Long id) {
+        Optional<Product> productOptional = productRepository.findById(id);
+
+        if (productOptional.isEmpty()) {
+            throw new ResourceNotFoundException("Product not found with id " + id);
         }
-        productRepository.deleteById(id);
+
+        Product product = productOptional.get();
+        productRepository.delete(product);
+        return ProductMapper.toDTO(product);
     }
-    public Optional<Product> updateProductPartially(Long id, Map<String, Object> updates) {
+    public ProductDTO updateProductPartially(Long id, Map<String, Object> updates) {
         Optional<Product> productOptional = productRepository.findById(id);
 
         if (productOptional.isEmpty()) {
@@ -55,8 +66,7 @@ public class ProductServiceImpl implements ProductService {
             }
         });
 
-        productRepository.save(product);
-        return Optional.of(product);
-
+        Product updatedProduct = productRepository.save(product);
+        return ProductMapper.toDTO(updatedProduct);
     }
 }

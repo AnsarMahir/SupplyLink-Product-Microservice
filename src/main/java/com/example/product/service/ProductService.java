@@ -13,5 +13,7 @@ public interface ProductService {
     ProductDTO createProduct(ProductDTO productDTO);
     ProductDTO updateProductPartially(Long id, Map<String, Object> updates);
     ProductDTO deleteProduct(Long id);
-}
 
+    // New method for updating quantity
+    ProductDTO updateProductQuantity(Long id, Integer quantity);
+}

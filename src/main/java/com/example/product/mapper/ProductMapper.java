@@ -6,13 +6,14 @@ import com.example.product.model.ProductCategory;
 
 
 public class ProductMapper {
-
     public static ProductDTO toDTO(Product product) {
         ProductDTO dto = new ProductDTO();
         dto.setId(product.getId());
         dto.setName(product.getName());
-        dto.setCategory(product.getCategory().toString());
+        dto.setCategory(product.getCategory().name()); // Assuming category is an enum
         dto.setPrice(product.getPrice());
+        dto.setImageUrl(product.getImageUrl());
+        dto.setQuantity(product.getQuantity()); // Add this line
         return dto;
     }
 
@@ -22,6 +23,8 @@ public class ProductMapper {
         product.setName(dto.getName());
         product.setCategory(ProductCategory.valueOf(dto.getCategory()));
         product.setPrice(dto.getPrice());
+        product.setImageUrl(dto.getImageUrl());
+        product.setQuantity(dto.getQuantity()); // Add this line
         return product;
     }
 }

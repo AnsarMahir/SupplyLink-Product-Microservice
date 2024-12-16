@@ -4,8 +4,9 @@ import com.example.product.exception.ErrorResponse;
 import com.example.product.exception.SuccessResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.request.WebRequest;
-
+@RequestMapping("/api/v1/products")
 public abstract class AbstractController {
 
     protected ResponseEntity<ErrorResponse> handleNotFoundException(Exception ex, WebRequest request) {
@@ -31,10 +32,6 @@ public abstract class AbstractController {
     protected <T> ResponseEntity<SuccessResponse<T>> createSuccessResponse(T body, String message, HttpStatus status) {
         SuccessResponse<T> successResponse = new SuccessResponse<>(status, message, body);
         return new ResponseEntity<>(successResponse, status);
-    }
-
-    protected <T> ResponseEntity<SuccessResponse<T>> createSuccessResponse(T body, HttpStatus status) {
-        return createSuccessResponse(body, "Request was successful", status);
     }
 
 }

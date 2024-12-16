@@ -1,11 +1,11 @@
 package com.example.product.controller;
 
 import com.example.product.dto.ProductDTO;
+import com.example.product.exception.InvalidRequestException;
 import com.example.product.exception.ResourceNotFoundException;
 import com.example.product.exception.SuccessResponse;
-import com.example.product.model.Product;
 import com.example.product.service.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,15 +17,12 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/products")
+@RequiredArgsConstructor
 public class ProductController extends AbstractController{
 
     private final ProductService productService;
 
-    @Autowired
-    public ProductController(ProductService productService) {
-        this.productService = productService;
-    }
+
 
     @GetMapping
     public ResponseEntity<SuccessResponse<List<ProductDTO>>> getAllProducts(
@@ -46,8 +43,33 @@ public class ProductController extends AbstractController{
 
     @PostMapping
     public ResponseEntity<SuccessResponse<ProductDTO>> createProduct(@RequestBody ProductDTO productDTO) {
+        // Validate quantity is not negative
+        if (productDTO.getQuantity() != null && productDTO.getQuantity() < 0) {
+            throw new InvalidRequestException("Quantity cannot be negative");
+        }
+
         ProductDTO createdProduct = productService.createProduct(productDTO);
         return createSuccessResponse(createdProduct, "Product created successfully", HttpStatus.CREATED);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<SuccessResponse<ProductDTO>> updateProductPartially(
+            @PathVariable Long id,
+            @RequestBody Map<String, Object> updates
+    ) {
+        // Optional validation for quantity
+        if (updates.containsKey("quantity")) {
+            Object quantityValue = updates.get("quantity");
+            if (quantityValue instanceof Number) {
+                int quantity = ((Number) quantityValue).intValue();
+                if (quantity < 0) {
+                    throw new InvalidRequestException("Quantity cannot be negative");
+                }
+            }
+        }
+
+        ProductDTO updatedProduct = productService.updateProductPartially(id, updates);
+        return createSuccessResponse(updatedProduct, "Product updated successfully", HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
@@ -56,11 +78,18 @@ public class ProductController extends AbstractController{
         return createSuccessResponse(deletedProduct, "Product deleted successfully", HttpStatus.OK);
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<SuccessResponse<ProductDTO>> updateProductPartially(@PathVariable Long id,
-                                                                              @RequestBody Map<String, Object> updates) {
-        ProductDTO updatedProduct = productService.updateProductPartially(id, updates);
-        return createSuccessResponse(updatedProduct, "Product updated successfully", HttpStatus.OK);
+    // New endpoint to update product quantity
+    @PatchMapping("/{id}/quantity")
+    public ResponseEntity<SuccessResponse<ProductDTO>> updateProductQuantity(
+            @PathVariable Long id,
+            @RequestParam Integer quantity
+    ) {
+        if (quantity < 0) {
+            throw new InvalidRequestException("Quantity cannot be negative");
+        }
+
+        ProductDTO updatedProduct = productService.updateProductQuantity(id, quantity);
+        return createSuccessResponse(updatedProduct, "Product quantity updated successfully", HttpStatus.OK);
     }
 }
 
